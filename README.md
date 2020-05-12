@@ -53,4 +53,4 @@ kubectl apply -f ./rest-calculator-linkerd.yaml
 ```
 # Comparing REST over HTTP/1 vs gRPC
 
-If you want to compare both implementation, I also published [the corresponding gRPC calculator app](https://github.com/stephaneey/grpc-calculator-linkerd). 
+If you want to compare both implementations, I also published [the corresponding gRPC calculator app](https://github.com/stephaneey/grpc-calculator-linkerd). 
