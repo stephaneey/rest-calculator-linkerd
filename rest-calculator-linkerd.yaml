@@ -1,0 +1,317 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: addition
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: substraction
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: division
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: multiplication
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: percentage
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mathfanboy
+  namespace: rest-calculator
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: addition
+  namespace: rest-calculator
+spec:
+  ports:
+  - name: http
+    port: 5001
+    targetPort: 80  
+  selector:
+    app: addition
+  type: ClusterIP        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: substraction
+  namespace: rest-calculator
+spec:
+  ports:
+  - name: http
+    port: 5004
+    targetPort: 80  
+  selector:
+    app: substraction
+  type: ClusterIP    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: division
+  namespace: rest-calculator
+spec:
+  ports:
+  - name: http
+    port: 5002
+    targetPort: 80
+  selector:
+    app: division
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: percentage
+  namespace: rest-calculator
+spec:
+  ports:
+  - name: http
+    port: 5005
+    targetPort: 80
+  selector:
+    app: percentage
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multiplication
+  namespace: rest-calculator
+spec:
+  ports:
+  - name: http
+    port: 5003
+    targetPort: 80
+  selector:
+    app: multiplication
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: addition
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9  
+  name: addition
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: addition
+  template:
+    metadata:
+      labels:
+        app: addition
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:      
+      - name: addition
+        image: stephaneey/rcalcadd:dev
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5001
+          name: http        
+        resources:
+          requests:
+            cpu: 10m
+      serviceAccountName: addition
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: division
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9
+  name: division
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: division
+  template:
+    metadata:
+      labels:
+        app: division
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:      
+      - name: division
+        image: stephaneey/rcalcdivide:dev
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 5002
+          name: http        
+        resources:
+          requests:
+            cpu: 10m
+      serviceAccountName: division
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: substraction
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9
+  name: substraction
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: substraction
+  template:
+    metadata:
+      labels:
+        app: substraction
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:      
+      - name: substraction
+        image: stephaneey/rcalcsubstract:dev
+        imagePullPolicy: Always        
+        ports:
+        - containerPort: 5004
+          name: http   
+        resources:
+          requests:
+            cpu: 10m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: multiplication
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9
+  name: multiplication
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multiplication
+  template:
+    metadata:
+      labels:
+        app: multiplication
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:      
+      - name: multiplication
+        image: stephaneey/rcalcmultiply:dev 
+        imagePullPolicy: Always      
+        ports:
+        - containerPort: 5003
+          name: http        
+        resources:
+          requests:
+            cpu: 10m
+      serviceAccountName: multiplication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: percentage
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9
+  name: percentage
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: percentage
+  template:
+    metadata:
+      labels:
+        app: percentage
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:      
+      - name: percentage
+        image: stephaneey/rcalcpercentage:dev
+        imagePullPolicy: Always
+        env:                
+        - name: DivisionEndpoint
+          value: http://division.rest-calculator:5002/division
+        - name: MultiplicationEndpoint
+          value: http://multiplication.rest-calculator:5003/multiplication               
+        ports:
+        - containerPort: 5005
+          name: http        
+        resources:
+          requests:
+            cpu: 10m
+      serviceAccountName: percentage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mathfanboy
+    app.kubernetes.io/part-of: calculator
+    app.kubernetes.io/version: v9
+  name: mathfanboy
+  namespace: rest-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mathfanboy
+  template:
+    metadata:
+      labels:
+        app: mathfanboy
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      containers:
+      - name: mathfanboy       
+        image: stephaneey/rmathfanboy:dev
+        imagePullPolicy: Always
+        env:        
+        - name: AdditionEndpoint
+          value: http://addition.rest-calculator:5001/addition
+        - name: DivisionEndpoint
+          value: http://division.rest-calculator:5002/division
+        - name: MultiplicationEndpoint
+          value: http://multiplication.rest-calculator:5003/multiplication
+        - name: SubstractionEndpoint
+          value: http://substraction.rest-calculator:5004/substraction
+        - name: PercentageEndpoint
+          value: http://percentage.rest-calculator:5005/percentage
+      serviceAccountName: mathfanboy
