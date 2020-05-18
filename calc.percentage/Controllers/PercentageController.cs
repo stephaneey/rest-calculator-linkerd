@@ -37,8 +37,9 @@ namespace calc.percentage.Controllers
        
         [HttpPost]
         public async Task<int> Percentage([FromBody]OperationParameters p)
-        {
-            return await Calculate(await Calculate(p.op1, p.op2,MultiplicationEndpoint), 100,DivisionEndpoint);
+        { 
+            int[] operands = new int[2] { 0, 100 };
+            return await Calculate(await Calculate(p.op1, p.op2, MultiplicationEndpoint), operands[new Random().Next(0, 2)], DivisionEndpoint); //generating errors purposely,DivisionEndpoint
         }
 
         async Task<int> Calculate(int op1, int op2,string endpoint)
